@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+
+    scrape_configs:
+      - job_name: prometheus
+        static_configs:
+          - targets:
+              - localhost:9090
+
+      - job_name: node-exporter
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - monitoring
+          
+        relabel_configs:
+        - source_labels:
+          - __meta_kubernetes_pod_label_app
+          action: keep
+          regex: node-exporter
+
+      - job_name: kube-state-metrics
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - monitoring
+
+        relabel_configs:
+          - source_labels:
+              - __meta_kubernetes_pod_label_app
+            action: keep
+            regex: kube-state-metrics
+          - target_label: cluster
+            replacement: minikube
+
+      - job_name: loki
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - monitoring
+        relabel_configs:
+          - source_labels:
+              - __meta_kubernetes_pod_label_app
+            action: keep
+            regex: loki

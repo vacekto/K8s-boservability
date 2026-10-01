@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ollama-models
+spec:
+  storageClassName: ollama-models
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4
+  nfs:
+    server: 192.168.49.1
+    path: /usr/share/ollama/.ollama/models
